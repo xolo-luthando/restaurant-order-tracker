@@ -3,7 +3,7 @@ $host = "localhost";
 $port = "5432";
 $dbname = "restaurant_tracker";
 $user = "postgres";
-$password = "YOUR_ACTUAL_PASSWORD";
+$password = "";
 
 $conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 
