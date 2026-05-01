@@ -1,15 +1,36 @@
 <?php
 include "db.php";
 
-$name = $_POST['name'];
-$password = $_POST['password'];
+// Get inputs
+$name = $_POST['name'] ?? '';
+$password = $_POST['password'] ?? '';
 
-$query = "SELECT * FROM users WHERE name='$name' AND password='$password'";
-$result = pg_query($conn, $query);
+// Validate inputs
+if (empty($name) || empty($password)) {
+    echo json_encode(["success" => false, "message" => "All fields are required"]);
+    exit;
+}
 
-if (pg_num_rows($result) > 0) {
-    echo "Login success";
+// Use parameterized query to prevent SQL injection
+$query = "SELECT * FROM users WHERE name = $1";
+$result = pg_query_params($conn, $query, [$name]);
+
+if ($result && pg_num_rows($result) > 0) {
+    $user = pg_fetch_assoc($result);
+
+    // Verify hashed password
+    if (password_verify($password, $user['password'])) {
+        echo json_encode([
+            "success" => true,
+            "message" => "Login successful",
+            "user_id" => $user['user_id'],
+            "name" => $user['name'],
+            "role" => $user['role']
+        ]);
+    } else {
+        echo json_encode(["success" => false, "message" => "Invalid credentials"]);
+    }
 } else {
-    echo "Login failed";
+    echo json_encode(["success" => false, "message" => "Invalid credentials"]);
 }
 ?>
