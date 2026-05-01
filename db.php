@@ -1,9 +1,13 @@
 <?php
-$conn = pg_connect("host=localhost port=5432 dbname=restaurant_tracker user=postgres password= !U2h@nd0");
+$host = "localhost";
+$port = "5432";
+$dbname = "restaurant_tracker";
+$user = "postgres";
+$password = "YOUR_ACTUAL_PASSWORD";
+
+$conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
 
 if (!$conn) {
-    echo "Connection failed";
-} else {
-    echo "Connected successfully";
+    die(json_encode(["success" => false, "message" => "Connection failed"]));
 }
 ?>
