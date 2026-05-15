@@ -39,13 +39,13 @@ if (pg_num_rows($check_rating) > 0) {
     exit;
 }
 
-// Insert rating
-$query = "INSERT INTO ratings (order_id, customer_id, thumbs) VALUES ($1, $2, $3)";
+// FIXED: Use 'rating' column instead of 'thumbs' to match your database
+$query = "INSERT INTO ratings (order_id, customer_id, rating) VALUES ($1, $2, $3)";
 $result = pg_query_params($conn, $query, [$order_id, $customer_id, $thumbs]);
 
 if ($result) {
     echo json_encode(["success" => true, "message" => "Order rated successfully"]);
 } else {
-    echo json_encode(["success" => false, "message" => "Failed to rate order"]);
+    echo json_encode(["success" => false, "message" => "Failed to rate order: " . pg_last_error($conn)]);
 }
 ?>
