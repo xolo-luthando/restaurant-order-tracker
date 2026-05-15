@@ -2,7 +2,7 @@
 
 ## Base URL
 
-http://10.166.3.253:8000/
+http://localhost:8000/
 
 ---
 
