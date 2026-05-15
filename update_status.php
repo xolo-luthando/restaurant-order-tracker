@@ -12,16 +12,16 @@ if (empty($order_id) || empty($status) || empty($staff_id)) {
     exit;
 }
 
-// Validate status value
-if (!in_array($status, ['pending', 'ready', 'collected'])) {
-    echo json_encode(["success" => false, "message" => "Invalid status. Must be pending, ready or collected"]);
+// FIXED: Add 'preparing' to valid statuses
+if (!in_array($status, ['pending', 'preparing', 'ready', 'collected'])) {
+    echo json_encode(["success" => false, "message" => "Invalid status"]);
     exit;
 }
 
 // Validate that the order belongs to this staff member
 $check_order = pg_query_params($conn, "SELECT * FROM orders WHERE order_id = $1 AND staff_id = $2", [$order_id, $staff_id]);
 if (pg_num_rows($check_order) == 0) {
-    echo json_encode(["success" => false, "message" => "Order not found or you are not authorized to update it"]);
+    echo json_encode(["success" => false, "message" => "Order not found or you are not authorized"]);
     exit;
 }
 

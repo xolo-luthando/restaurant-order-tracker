@@ -18,16 +18,30 @@ if (!in_array($role, ['staff', 'customer'])) {
     exit;
 }
 
+// Check if user already exists
+$checkQuery = "SELECT user_id FROM users WHERE name = $1";
+$checkResult = pg_query_params($conn, $checkQuery, [$name]);
+
+if ($checkResult && pg_num_rows($checkResult) > 0) {
+    echo json_encode(["success" => false, "message" => "Username already taken"]);
+    exit;
+}
+
 // Hash the password
 $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-// Use parameterized query to prevent SQL injection
-$query = "INSERT INTO users (name, password, role) VALUES ($1, $2, $3)";
+// FIXED: Add RETURNING clause to get the user_id
+$query = "INSERT INTO users (name, password, role) VALUES ($1, $2, $3) RETURNING user_id";
 $result = pg_query_params($conn, $query, [$name, $hashed_password, $role]);
 
 if ($result) {
-    echo json_encode(["success" => true, "message" => "User registered successfully"]);
+    $row = pg_fetch_assoc($result);
+    echo json_encode([
+        "success" => true, 
+        "message" => "User registered successfully",
+        "user_id" => $row['user_id']
+    ]);
 } else {
-    echo json_encode(["success" => false, "message" => "Registration failed"]);
+    echo json_encode(["success" => false, "message" => "Registration failed: " . pg_last_error($conn)]);
 }
 ?>
